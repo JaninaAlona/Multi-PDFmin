@@ -1,16 +1,5 @@
 <template>
-  <div class="menu_btn_con">
-    <input
-      @change="renderPDF"
-      ref="filechooser_ref"
-      class="choose_file"
-      type="file"
-      accept=".pdf"
-      hidden
-    />
-    <button @click="browseFile" class="menu_btn" type="button">View</button>
-  </div>
-  <div v-show="showReader" id="reader">
+  <div v-show="reading" id="reader">
     <div id="reader_controls">
       <button id="go_previous" class="pages btn btn-success file_manip">
         Previous
@@ -45,9 +34,9 @@
 
 export default {
   components: {},
+  props: ['reading'],
   data() {
     return {
-      showReader: false,
       pdfState: {
         pdf: null,
         currentPage: 1,
@@ -58,10 +47,6 @@ export default {
     };
   },
   methods: {
-    browseFile() {
-      this.$refs.filechooser_ref.click();
-    },
-
     renderPDF(e) {
       this.cleanUp();
       const file = e.target.files[0];

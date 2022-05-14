@@ -1,7 +1,7 @@
 <template>
  <header>
     <div class="buttonbar">
-      <Viewer />
+      <ReadBtn />
       <div class="menu_btn_con">
         <button class="menu_btn" type="button">Create</button>
       </div>
@@ -10,27 +10,29 @@
       </div>
     </div>
   </header>
+  <Reader @showReader="read" :reading="startReading"/>
 </template>
 
 <script>
-import Viewer from './components/Viewer.vue'
+import Reader from './components/Reader.vue'
+import ReadBtn from './components/Reader.vue'
 
 
 export default {
   name: 'App',
   components: {
-    Viewer,
+    Reader, ReadBtn,
   },
   data() {
     return {
-      
+      startReading: false,
     }
   },
-  /* mounted() {
-    let pdfJSLibrary = document.createElement('script')
-    pdfJSLibrary.setAttribute('src', 'https://cdnjs.com/libraries/pdf.js')
-    document.head.appendChild(pdfJSLibrary)
-  } */
+  methods: {
+    read() {
+      this.startReading = true
+    }
+  }
 }
 </script>
 
@@ -41,6 +43,7 @@ export default {
 
 body {
   margin: 0%;
+  overflow-y: scroll;
 }
 
 #app {
