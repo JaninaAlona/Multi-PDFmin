@@ -1,7 +1,17 @@
 <template>
  <header>
     <div class="buttonbar">
-      <ReadBtn />
+      <div class="menu_btn_con">
+        <input
+          @change="read"
+          ref="filechooser_ref"
+          class="choose_file"
+          type="file"
+          accept=".pdf"
+          hidden
+        />
+      <button @click="browseFile" class="menu_btn" type="button">Read</button>
+      </div>
       <div class="menu_btn_con">
         <button class="menu_btn" type="button">Create</button>
       </div>
@@ -10,28 +20,32 @@
       </div>
     </div>
   </header>
-  <Reader @showReader="read" :reading="startReading"/>
+  <Reader v-show="startReading" :rendering="renderEvent" />
 </template>
 
 <script>
 import Reader from './components/Reader.vue'
-import ReadBtn from './components/Reader.vue'
 
 
 export default {
   name: 'App',
   components: {
-    Reader, ReadBtn,
+    Reader, 
   },
   data() {
     return {
       startReading: false,
+      renderEvent: null,
     }
   },
   methods: {
-    read() {
-      this.startReading = true
-    }
+    read(renderE) {
+      this.startReading = true;
+      this.renderEvent = renderE;
+    },
+    browseFile() {
+      this.$refs.filechooser_ref.click();
+    },
   }
 }
 </script>
