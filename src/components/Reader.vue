@@ -1,5 +1,5 @@
 <template>
-  <div @renderEvent="renderPDF" id="reader">
+  <div id="reader">
     <div id="reader_controls">
       <button id="go_previous" class="pages file_manip">
         Previous
@@ -34,7 +34,9 @@
 
 export default {
   components: {},
-  props: ['renderEvent',],
+  props: {
+    rendering:Object,
+  },
   data() {
     return {
       pdfState: {
@@ -46,7 +48,9 @@ export default {
       pageCounter: 1,
     }
   },
-
+  updated() {
+    renderPDF(this.rendering)
+  },
   methods: {
     renderPDF(e) {
       this.cleanUp();
