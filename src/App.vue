@@ -35,13 +35,13 @@ export default {
   data() {
     return {
       startReading: false,
-      renderEvent: null,
+      renderEvent: '',
     }
   },
   methods: {
     read(renderE) {
       this.startReading = true;
-      this.renderEvent = renderE;
+      this.renderEvent = 'change';
     },
     browseFile() {
       this.$refs.filechooser_ref.click();

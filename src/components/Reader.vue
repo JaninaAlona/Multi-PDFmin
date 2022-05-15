@@ -35,10 +35,11 @@
 export default {
   components: {},
   props: {
-    rendering:Object,
+    rendering:String,
   },
   data() {
     return {
+      renderE: () => ({ renderE: rendering }),
       pdfState: {
         pdf: null,
         currentPage: 1,
@@ -47,9 +48,6 @@ export default {
       },
       pageCounter: 1,
     }
-  },
-  updated() {
-    renderPDF(this.rendering)
   },
   methods: {
     renderPDF(e) {
