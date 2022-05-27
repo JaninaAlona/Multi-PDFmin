@@ -31,15 +31,12 @@
 </template>
 
 <script>
-
 export default {
   components: {},
-  props: {
-    rendering:String,
-  },
+  props: ['rendering'],
   data() {
     return {
-      renderE: () => ({ renderE: rendering }),
+      renderE: this.rendering,
       pdfState: {
         pdf: null,
         currentPage: 1,
@@ -48,6 +45,9 @@ export default {
       },
       pageCounter: 1,
     }
+  },
+  updated() {
+    this.renderPDF(this.renderE);
   },
   methods: {
     renderPDF(e) {

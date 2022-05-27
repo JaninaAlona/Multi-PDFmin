@@ -41,7 +41,7 @@ export default {
   methods: {
     read(renderE) {
       this.startReading = true;
-      this.renderEvent = 'change';
+      this.renderEvent = renderE;
     },
     browseFile() {
       this.$refs.filechooser_ref.click();
