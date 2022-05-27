@@ -3,7 +3,7 @@
     <div class="buttonbar">
       <div class="menu_btn_con">
         <input
-          @change="read"
+          @change="displayPDF"
           ref="filechooser_ref"
           class="choose_file"
           type="file"
@@ -20,7 +20,7 @@
       </div>
     </div>
   </header>
-  <Reader v-show="startReading" :rendering="renderEvent" />
+  <Reader v-show="startReading" ref="renderTrigger" />
 </template>
 
 <script>
@@ -30,7 +30,7 @@ import Reader from './components/Reader.vue'
 export default {
   name: 'App',
   components: {
-    Reader, 
+    Reader,
   },
   data() {
     return {
@@ -39,12 +39,12 @@ export default {
     }
   },
   methods: {
-    read(renderE) {
-      this.startReading = true;
-      this.renderEvent = renderE;
-    },
     browseFile() {
       this.$refs.filechooser_ref.click();
+    },
+    displayPDF(e) {
+      this.startReading = true;
+      this.$refs.renderTrigger.renderPDF(e);
     },
   }
 }

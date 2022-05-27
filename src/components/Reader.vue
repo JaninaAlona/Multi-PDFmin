@@ -5,10 +5,9 @@
         Previous
       </button>
       <input
-        ref="current_page_ref"
+        v-model="pageInput"
         id="current_page"
         class="file_manip"
-        value="1"
         type="number"
       />
       <button id="go_next" class="pages file_manip">
@@ -16,10 +15,9 @@
       </button>
       <button id="zoom_in" class="zoom file_manip">+</button>
       <input
-        ref="zoom_factor_ref"
+        v-model="zoomInput"
         id="zoom_factor"
         class="file_manip"
-        value="100%"
         type="text"
       />
       <button id="zoom_out" class="zoom file_manip">-</button>
@@ -32,11 +30,8 @@
 
 <script>
 export default {
-  components: {},
-  props: ['rendering'],
   data() {
     return {
-      renderE: this.rendering,
       pdfState: {
         pdf: null,
         currentPage: 1,
@@ -44,27 +39,23 @@ export default {
         pageHeight: [],
       },
       pageCounter: 1,
+      pageInput: 1,
+      zoomInput: "100%",
     }
   },
-  updated() {
-    this.renderPDF(this.renderE);
-  },
   methods: {
-    renderPDF(e) {
-      this.cleanUp();
-      const file = e.target.files[0];
-      const fileReader = new FileReader();
-      fileReader.onload = function () {
-        const typedarray = new Uint8Array(this.result);
-        const loadingTask = pdfjsLib.getDocument(typedarray);
-        loadingTask.promise.then((pdf) => {
-          this.resetToDefaults();
-          this.pdfState.pdf = pdf;
-          console.log("hello");
-          this.pdfState.pdf.getPage(1).then(this.renderAllPages);
-        });
-      };
-      fileReader.readAsArrayBuffer(file);
+    resetRendering() {
+      let pdfViewer = this.$refs.pdfviewer_ref;
+      while (pdfViewer.firstChild) {
+        pdfViewer.removeChild(pdfViewer.firstChild);
+      }
+      this.pdfState.pageHeight = [];
+      this.pageCounter = 1;
+    },
+
+    resetSettingVals() {
+      this.pageInput = 1;
+      this.zoomInput = "100%";
     },
 
     cleanUp() {
@@ -81,18 +72,27 @@ export default {
       }
     },
 
-    resetRendering() {
-      let pdfViewer = this.$refs.pdfviewer_ref;
-      while (pdfViewer.firstChild) {
-        pdfViewer.removeChild(pdfViewer.firstChild);
-      }
-      this.pdfState.pageHeight = [];
-      this.pageCounter = 1;
-    },
-
-    resetToDefaults() {
-      this.$refs.current_page_ref.value = 1;
-      this.$refs.zoom_factor_ref.value = 100 + "%";
+    renderPDF(e) {
+      this.cleanUp();
+      const file = e.target.files[0];
+      const fileReader = new FileReader();
+      fileReader.onload = function () {
+        const typedarray = new Uint8Array(this.result);
+        const loadingTask = pdfjsLib.getDocument(typedarray);
+        // loadingTask.promise.then((pdf) => {
+        //   this.resetSettingVals();
+        //   this.pdfState.pdf = pdf;
+        //   this.pdfState.pdf.getPage(1).then(this.renderAllPages);
+        // });
+        loadingTask.promise.then(
+          function(pdf) {
+            this.resetSettingVals();
+            this.pdfState.pdf = pdf;
+            this.pdfState.pdf.getPage(1).then(this.renderAllPages);
+          }
+        );
+      };
+      fileReader.readAsArrayBuffer(file);
     },
 
     renderAllPages(page) {
