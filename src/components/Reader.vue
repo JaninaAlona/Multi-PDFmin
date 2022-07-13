@@ -72,33 +72,28 @@ export default {
       }
     },
 
-    renderPDF(e) {
+    async renderPDF(e) {
       this.cleanUp();
       const file = e.target.files[0];
       const fileReader = new FileReader();
       fileReader.onload = function () {
         const typedarray = new Uint8Array(this.result);
+        this.resetSettingVals();
         const loadingTask = pdfjsLib.getDocument(typedarray);
-        // loadingTask.promise.then((pdf) => {
-        //   this.resetSettingVals();
-        //   this.pdfState.pdf = pdf;
-        //   this.pdfState.pdf.getPage(1).then(this.renderAllPages);
-        // });
-        loadingTask.promise.then(
-          function(pdf) {
-            this.resetSettingVals();
-            this.pdfState.pdf = pdf;
-            this.pdfState.pdf.getPage(1).then(this.renderAllPages);
-          }
-        );
+        //missing rejection case in promise, pop up if PDF cannot be open
+        loadingTask.promise.then(function (pdf) {
+          const page = this.pdfState.pdf.getPage(1);
+          this.renderPage(page);
+          this.pdfState.pdf = pdf;
+        });
       };
       fileReader.readAsArrayBuffer(file);
     },
 
-    renderAllPages(page) {
+    renderPage(page) {
       let pdfViewer = this.$refs.pdf_viewer_ref;
       let viewport = page.getViewport({
-        scale: pdfState.zoom,
+        scale: this.pdfState.zoom,
       });
 
       let canvas = document.createElement("canvas");
@@ -109,7 +104,7 @@ export default {
       canvas.width = viewport.width;
       canvas.height = viewport.height;
 
-      this.pdfState.pageHeight.push(canvas.height);
+      this.pdf.pageHeight.push(canvas.height);
 
       // Render PDF page into canvas context
       page.render({
@@ -124,7 +119,8 @@ export default {
         this.pdfState.pdf != null &&
         this.pageCounter <= this.pdfState.pdf._pdfInfo.numPages
       ) {
-        this.pdfState.pdf.getPage(this.pageCounter).then(this.renderAllPages);
+        const nextPage = this.pdfState.pdf.getPage(this.pageCounter);
+        this.renderPage(nextPage);
       }
     },
   },
