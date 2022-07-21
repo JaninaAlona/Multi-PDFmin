@@ -72,57 +72,60 @@ export default {
       }
     },
 
-    async renderPDF(e) {
+    resetToDefaults() {
+      document.getElementById("current_page").value = 1;
+      document.getElementById("zoom_factor").value = 100 + "%";
+      document.getElementById("pdf_viewer").style.display = "block";
+      document.getElementById("reader_controls").style.display = "flex";
+    },
+
+    renderPDF(e) {
       this.cleanUp();
       const file = e.target.files[0];
       const fileReader = new FileReader();
+      const self = this;
       fileReader.onload = function () {
         const typedarray = new Uint8Array(this.result);
-        this.resetSettingVals();
+        self.resetSettingVals();
         const loadingTask = pdfjsLib.getDocument(typedarray);
         //missing rejection case in promise, pop up if PDF cannot be open
-        loadingTask.promise.then(function (pdf) {
-          const page = this.pdfState.pdf.getPage(1);
-          this.renderPage(page);
-          this.pdfState.pdf = pdf;
+        loadingTask.promise.then(pdf => {
+            self.resetToDefaults();
+            pdfState.pdf = pdf;
+            pdfState.pdf.getPage(1).then(self.renderAllPages);
         });
       };
       fileReader.readAsArrayBuffer(file);
     },
 
-    renderPage(page) {
-      let pdfViewer = this.$refs.pdf_viewer_ref;
+    renderAllPages(page) {
+      let pdfViewer = document.getElementById('pdf_viewer');
       let viewport = page.getViewport({
-        scale: this.pdfState.zoom,
+          scale: pdfState.zoom
       });
 
       let canvas = document.createElement("canvas");
       canvas.style.display = "block";
       canvas.style.marginBottom = "20px";
 
-      const context = canvas.getContext("2d");
+      const context = canvas.getContext('2d');
       canvas.width = viewport.width;
       canvas.height = viewport.height;
 
-      this.pdf.pageHeight.push(canvas.height);
+      pdfState.pageHeight.push(canvas.height);
 
       // Render PDF page into canvas context
       page.render({
-        canvasContext: context,
-        viewport: viewport,
+          canvasContext: context,
+          viewport: viewport
       });
 
       pdfViewer.appendChild(canvas);
 
-      this.pageCounter++;
-      if (
-        this.pdfState.pdf != null &&
-        this.pageCounter <= this.pdfState.pdf._pdfInfo.numPages
-      ) {
-        const nextPage = this.pdfState.pdf.getPage(this.pageCounter);
-        this.renderPage(nextPage);
+      pageCounter++;
+      if (pdfState.pdf != null && pageCounter <= pdfState.pdf._pdfInfo.numPages) {
+          pdfState.pdf.getPage(pageCounter).then(renderAllPages);
       }
-    },
   },
 };
 </script>
