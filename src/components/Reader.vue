@@ -55,7 +55,7 @@ export default {
 
     resetSettingVals() {
       this.pageInput = 1;
-      this.zoomInput = "100%";
+      this.zoomInput = 100 + "%";
     },
 
     cleanUp() {
@@ -73,10 +73,10 @@ export default {
     },
 
     resetToDefaults() {
-      document.getElementById("current_page").value = 1;
-      document.getElementById("zoom_factor").value = 100 + "%";
-      document.getElementById("pdf_viewer").style.display = "block";
-      document.getElementById("reader_controls").style.display = "flex";
+      this.pageInput = 1;
+      this.zoomInput = 100 + "%";
+      //document.getElementById("pdf_viewer").style.display = "block";
+      //document.getElementById("reader_controls").style.display = "flex";
     },
 
     renderPDF(e) {
@@ -91,17 +91,17 @@ export default {
         //missing rejection case in promise, pop up if PDF cannot be open
         loadingTask.promise.then(pdf => {
             self.resetToDefaults();
-            pdfState.pdf = pdf;
-            pdfState.pdf.getPage(1).then(self.renderAllPages);
+            self.pdfState.pdf = pdf;
+            self.pdfState.pdf.getPage(1).then(self.renderAllPages);
         });
       };
       fileReader.readAsArrayBuffer(file);
     },
 
     renderAllPages(page) {
-      let pdfViewer = document.getElementById('pdf_viewer');
+      let pdfViewer = this.$refs.pdfviewer_ref;
       let viewport = page.getViewport({
-          scale: pdfState.zoom
+          scale: this.pdfState.zoom
       });
 
       let canvas = document.createElement("canvas");
@@ -112,7 +112,7 @@ export default {
       canvas.width = viewport.width;
       canvas.height = viewport.height;
 
-      pdfState.pageHeight.push(canvas.height);
+      this.pdfState.pageHeight.push(canvas.height);
 
       // Render PDF page into canvas context
       page.render({
@@ -122,11 +122,12 @@ export default {
 
       pdfViewer.appendChild(canvas);
 
-      pageCounter++;
-      if (pdfState.pdf != null && pageCounter <= pdfState.pdf._pdfInfo.numPages) {
-          pdfState.pdf.getPage(pageCounter).then(renderAllPages);
+      this.pageCounter++;
+      if (this.pdfState.pdf != null && this.pageCounter <= this.pdfState.pdf._pdfInfo.numPages) {
+          this.pdfState.pdf.getPage(this.pageCounter).then(this.renderAllPages);
       }
-  },
+    },
+  }
 };
 </script>
 
